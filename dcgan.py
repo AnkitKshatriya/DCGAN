@@ -35,7 +35,7 @@ class DCGAN_Model:
         self.dataset_name = dataset_name
 
         # Root directory for dataset
-        self.dataroot = f"C:\\Users\\ankit\\Workspaces\\CS7150\\data\\{dataset_name}"
+        self.dataroot = f"/home/r911/Documents/Deep_Learning/{dataset_name}"
 
         # Number of workers for dataloader
         self.workers = 4
@@ -79,7 +79,6 @@ class DCGAN_Model:
     def setup_data(self):
         self.dataset = dset.ImageFolder(root=self.dataroot,
                                         transform=transforms.Compose([
-                                            transforms.Resize(self.image_size),
                                             transforms.CenterCrop(self.image_size),
                                             transforms.ToTensor(),
                                             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
@@ -267,12 +266,11 @@ class DCGAN_Model:
             'discriminator': self.netD.state_dict(),
             'optimizerG': self.optimizerG.state_dict(),
             'optimizerD': self.optimizerD.state_dict(),
-        }, f'models/{self.dataset_name}/' + name)
+        }, f'/home/r911/Documents/Deep_Learning/Project/models/' + name)
 
 
 if __name__ == "__main__":
-    image_size = 32
-    model = DCGAN_Model('celeb', image_size=32, num_epochs=5, batch_size=128)
+    model = DCGAN_Model('Project', image_size=32, num_epochs=20, batch_size=128)
     # model.plot_training_data()
     model.init_gen_disc()
     model.train()

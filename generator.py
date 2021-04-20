@@ -6,9 +6,9 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         final_stride = 2
 
-        if output_size is 64:
+        if output_size == 64:
             final_stride = 2
-        elif output_size is 32:
+        elif output_size == 32:
             final_stride = 1
 
         self.ngpu = ngpu

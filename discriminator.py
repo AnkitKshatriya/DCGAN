@@ -7,7 +7,7 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         output_filter_size = 4
-        if input_size is 32:
+        if input_size == 32:
             output_filter_size = 2
 
         self.ngpu = ngpu
@@ -53,7 +53,7 @@ class Discriminator(nn.Module):
         mp2 = nn.MaxPool2d(kernel_size=2, padding=0)
         mp3 = nn.MaxPool2d(kernel_size=2, padding=0)
 
-        if self.data_generation_mode is 1:
+        if self.data_generation_mode == 1:
             flt1 = mp1(out1).flatten(start_dim=1)
             flt2 = mp2(out4).flatten(start_dim=1)
             flt3 = mp3(out7).flatten(start_dim=1)
