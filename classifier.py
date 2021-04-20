@@ -9,13 +9,14 @@ import torchvision.utils as vutils
 import sklearn.svm as svm
 import pickle
 from sklearn import metrics
+import datetime
 
 
 class SVM_Classifier:
     def __init__(self, batch_size):
         self.image_size = 64
         self.device = torch.device("cuda:0" if (torch.cuda.is_available()) else "cpu")
-        self.save_filename = 'model_2.sav'
+        self.save_filename = f'model_{datetime.datetime.now().strftime("%a_%H_%M")}.sav'
 
         transform = transforms.Compose(
             [transforms.Resize(self.image_size),
