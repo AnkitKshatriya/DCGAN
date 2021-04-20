@@ -30,17 +30,19 @@ def setup_seed():
 
 
 class DCGAN_Model:
-    def __init__(self):
+    def __init__(self, dataset_name, image_size, num_epochs, batch_size = 128):
         setup_seed()
 
+        self.dataset_name = dataset_name
+
         # Root directory for dataset
-        self.dataroot = "C:\\Users\\ankit\\Workspaces\\CS7150\\FinalProject\\data"
+        self.dataroot = f"C:\\Users\\ankit\\Workspaces\\CS7150\\data\\{dataset_name}"
 
         # Number of workers for dataloader
-        self.workers = 2
+        self.workers = 4
 
         # Batch size during training
-        self.batch_size = 128
+        self.batch_size = batch_size
 
         # Spatial size of training images. All images will be resized to this
         #   size using a transformer.
@@ -59,7 +61,7 @@ class DCGAN_Model:
         self.ndf = 64
 
         # Number of training epochs
-        self.num_epochs = 20
+        self.num_epochs = num_epochs
 
         # Learning rate for optimizers
         self.lr = 0.0002
@@ -266,11 +268,11 @@ class DCGAN_Model:
             'discriminator': self.netD.state_dict(),
             'optimizerG': self.optimizerG.state_dict(),
             'optimizerD': self.optimizerD.state_dict(),
-        }, 'models/' + name)
+        }, f'models/{self.dataset_name}/' + name)
 
 
 if __name__ == "__main__":
-    model = DCGAN_Model()
+    model = DCGAN_Model('imagenet', 64, 5, batch_size=1024)
     # model.plot_training_data()
     model.init_gen_disc()
     model.train()
