@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 
 
@@ -28,4 +29,30 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, data):
-        return self.main(data)
+        if self.train():
+            return self.main(data)
+
+        out = self.main[0](data)
+        out = self.main[1](out)
+
+        mx1 = nn.MaxPool1d(out, 2, 2)
+        flt1 = mx1.flatten()
+
+        out = self.main[2](out)
+        out = self.main[3](out)
+        out = self.main[4](out)
+
+        mx2 = nn.MaxPool1d(out, 2, 2)
+        flt2 = mx2.flatten()
+
+        out = self.main[5](out)
+        out = self.main[6](out)
+        out = self.main[7](out)
+
+        mx3 = nn.MaxPool1d(out, 2, 2)
+        flt3 = mx3.flatten()
+
+        flt25 = torch.cat(flt1, flt2)
+        final = torch.cat(flt25, flt3)
+
+        return final
