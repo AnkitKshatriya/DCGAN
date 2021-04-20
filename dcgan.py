@@ -1,11 +1,8 @@
 from __future__ import print_function
-import argparse
-import os
 import random
 import torch
 import torch.nn as nn
 import torch.nn.parallel
-import torch.backends.cudnn as cudnn
 import torch.optim as optim
 import torch.utils.data
 import torchvision.datasets as dset
@@ -15,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
+from docutils.nodes import image
+
 from generator import Generator
 from discriminator import Discriminator
 import datetime
@@ -30,21 +29,23 @@ def setup_seed():
 
 
 class DCGAN_Model:
-    def __init__(self):
+    def __init__(self, dataset_name, image_size, num_epochs, batch_size=128):
         setup_seed()
 
+        self.dataset_name = dataset_name
+
         # Root directory for dataset
-        self.dataroot = "C:\\Users\\ankit\\Workspaces\\CS7150\\FinalProject\\data"
+        self.dataroot = f"C:\\Users\\ankit\\Workspaces\\CS7150\\data\\{dataset_name}"
 
         # Number of workers for dataloader
-        self.workers = 2
+        self.workers = 4
 
         # Batch size during training
-        self.batch_size = 128
+        self.batch_size = batch_size
 
         # Spatial size of training images. All images will be resized to this
         #   size using a transformer.
-        self.image_size = 64
+        self.image_size = image_size
 
         # Number of channels in the training images. For color images this is 3
         self.nc = 3
@@ -59,7 +60,7 @@ class DCGAN_Model:
         self.ndf = 64
 
         # Number of training epochs
-        self.num_epochs = 20
+        self.num_epochs = num_epochs
 
         # Learning rate for optimizers
         self.lr = 0.0002
@@ -109,7 +110,7 @@ class DCGAN_Model:
 
     # Initialize discriminator and generator
     def init_gen_disc(self):
-        self.netG = Generator(self.ngpu, self.nc, self.ngf, self.nz).to(self.device)
+        self.netG = Generator(self.ngpu, self.nc, self.ngf, self.nz, output_size=self.image_size).to(self.device)
 
         # Handle multi-gpu if desired
         if (self.device.type == 'cuda') and (self.ngpu > 1):
@@ -120,7 +121,7 @@ class DCGAN_Model:
         self.netG.apply(self.weights_init)
 
         # Create the Discriminator
-        self.netD = Discriminator(self.ngpu, self.nc, self.ndf).to(self.device)
+        self.netD = Discriminator(self.ngpu, self.nc, self.ndf, input_size=self.image_size).to(self.device)
 
         # Handle multi-gpu if desired
         if (self.device.type == 'cuda') and (self.ngpu > 1):
@@ -266,11 +267,12 @@ class DCGAN_Model:
             'discriminator': self.netD.state_dict(),
             'optimizerG': self.optimizerG.state_dict(),
             'optimizerD': self.optimizerD.state_dict(),
-        }, 'models/' + name)
+        }, f'models/{self.dataset_name}/' + name)
 
 
 if __name__ == "__main__":
-    model = DCGAN_Model()
+    image_size = 32
+    model = DCGAN_Model('celeb', image_size=32, num_epochs=5, batch_size=128)
     # model.plot_training_data()
     model.init_gen_disc()
     model.train()
