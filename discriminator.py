@@ -3,9 +3,15 @@ import torch.nn as nn
 
 
 class Discriminator(nn.Module):
-    def __init__(self, ngpu, num_channels, num_features):
+    def __init__(self, ngpu, num_channels, num_features, input_size=64, data_generation_mode=1):
         super(Discriminator, self).__init__()
+
+        output_filter_size = 4
+        if input_size is 32:
+            output_filter_size = 2
+
         self.ngpu = ngpu
+        self.data_generation_mode = data_generation_mode
         self.main = nn.Sequential(
             # input is (num_channels) x 64 x 64
             # params: in_channels, out_channels, kernel_size, stride, padding
@@ -24,7 +30,7 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(num_features * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (num_features*8) x 4 x 4
-            nn.Conv2d(num_features * 8, 1, 4, 1, 0, bias=False),
+            nn.Conv2d(num_features * 8, 1, output_filter_size, 1, 0, bias=False),
             nn.Sigmoid()
         )
 
@@ -33,27 +39,30 @@ class Discriminator(nn.Module):
             return self.main(data)
 
         out = self.main[0](data)
-        out = self.main[1](out)
+        out1 = self.main[1](out)
 
-        mp = nn.MaxPool2d(kernel_size=2, padding=0)
-        mx1 = mp(out)
-        flt1 = mx1.flatten(start_dim=1)
+        out2 = self.main[2](out1)
+        out3 = self.main[3](out2)
+        out4 = self.main[4](out3)
 
-        out = self.main[2](out)
-        out = self.main[3](out)
-        out = self.main[4](out)
+        out5 = self.main[5](out4)
+        out6 = self.main[6](out5)
+        out7 = self.main[7](out6)
 
-        mp = nn.MaxPool2d(kernel_size=2, padding=0)
-        flt2 = mp(out).flatten(start_dim=1)
+        mp1 = nn.MaxPool2d(kernel_size=2, padding=0)
+        mp2 = nn.MaxPool2d(kernel_size=2, padding=0)
+        mp3 = nn.MaxPool2d(kernel_size=2, padding=0)
 
-        out = self.main[5](out)
-        out = self.main[6](out)
-        out = self.main[7](out)
+        if self.data_generation_mode is 1:
+            flt1 = mp1(out1).flatten(start_dim=1)
+            flt2 = mp2(out4).flatten(start_dim=1)
+            flt3 = mp3(out7).flatten(start_dim=1)
+        else:
+            flt1 = mp1(out).flatten(start_dim=1)
+            flt2 = mp2(out2).flatten(start_dim=1)
+            flt3 = mp3(out5).flatten(start_dim=1)
 
-        mp = nn.MaxPool2d(kernel_size=2, padding=0)
-        flt3 = mp(out).flatten(start_dim=1)
-
-        flt25 = torch.column_stack((flt1, flt2))
-        final = torch.column_stack((flt25, flt3))
+        flt21 = torch.column_stack((flt1, flt2))
+        final = torch.column_stack((flt21, flt3))
 
         return final

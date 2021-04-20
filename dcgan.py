@@ -12,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
+from docutils.nodes import image
+
 from generator import Generator
 from discriminator import Discriminator
 import datetime
@@ -27,7 +29,7 @@ def setup_seed():
 
 
 class DCGAN_Model:
-    def __init__(self, dataset_name, image_size, num_epochs, batch_size = 128):
+    def __init__(self, dataset_name, image_size, num_epochs, batch_size=128):
         setup_seed()
 
         self.dataset_name = dataset_name
@@ -43,7 +45,7 @@ class DCGAN_Model:
 
         # Spatial size of training images. All images will be resized to this
         #   size using a transformer.
-        self.image_size = 64
+        self.image_size = image_size
 
         # Number of channels in the training images. For color images this is 3
         self.nc = 3
@@ -108,7 +110,7 @@ class DCGAN_Model:
 
     # Initialize discriminator and generator
     def init_gen_disc(self):
-        self.netG = Generator(self.ngpu, self.nc, self.ngf, self.nz).to(self.device)
+        self.netG = Generator(self.ngpu, self.nc, self.ngf, self.nz, output_size=self.image_size).to(self.device)
 
         # Handle multi-gpu if desired
         if (self.device.type == 'cuda') and (self.ngpu > 1):
@@ -119,7 +121,7 @@ class DCGAN_Model:
         self.netG.apply(self.weights_init)
 
         # Create the Discriminator
-        self.netD = Discriminator(self.ngpu, self.nc, self.ndf).to(self.device)
+        self.netD = Discriminator(self.ngpu, self.nc, self.ndf, input_size=self.image_size).to(self.device)
 
         # Handle multi-gpu if desired
         if (self.device.type == 'cuda') and (self.ngpu > 1):
@@ -269,7 +271,8 @@ class DCGAN_Model:
 
 
 if __name__ == "__main__":
-    model = DCGAN_Model('imagenet', 64, 5, batch_size=1024)
+    image_size = 32
+    model = DCGAN_Model('celeb', image_size=32, num_epochs=5, batch_size=128)
     # model.plot_training_data()
     model.init_gen_disc()
     model.train()
